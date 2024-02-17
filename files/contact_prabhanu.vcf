@@ -1,0 +1,13 @@
+BEGIN:VCARD
+VERSION:3.0
+N;CHARSET=utf-8:Gunaweera;Prabhanu;;;
+FN;CHARSET=utf-8:Prabhanu Gunaweera
+TITLE;CHARSET=utf-8:Senior Software Engineer
+NOTE;CHARSET=utf-8:Engineer | Developer | Tech Blogger | Flutter consultant
+X-SOCIALPROFILE;type=Whatsapp:https://wa.me/94 71 314 7557
+TEL;WORK:+94 71 314 7557
+EMAIL;WORK:prabhanu@fcodelabs.com
+EMAIL;HOME:prabhanu96@gmail.com
+URL:www.prabhanu.com
+X-SOCIALPROFILE;type=LINKEDIN:https://www.linkedin.com/in/prabhanu-gunaweera
+END:VCARD
