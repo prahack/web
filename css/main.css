@@ -1499,6 +1499,8 @@ header .logo a {
 	margin-top: 4.2rem;
 	margin-right: -30px;
 	margin-left: -30px;
+	/* display: flex;
+    align-items: center; */
 }
 .intro-info img {
 	height: 12rem;
@@ -1561,6 +1563,19 @@ header .logo a {
 	margin-right: 4rem;
 }
 
+/* modified */
+.button-row {
+    display: flex;
+    flex-direction: column;
+}
+
+@media (min-width: 768px) {
+    .button-row {
+        flex-direction: row;
+        justify-content: flex-start;
+    }
+}
+/* modified end */
 /**
  * responsive:
  * about
@@ -1644,7 +1659,7 @@ header .logo a {
 	height: 100%;
 	background: rgba(0, 0, 0, 0.1);
 	position: absolute;
-	left: 35%;
+	left: 50%;
 	top: 0;
 }
 #resume .timeline-block {
@@ -1660,7 +1675,7 @@ header .logo a {
 	text-align: center;
 	color: #FFFFFF;
 	position: absolute;
-	left: 35%;
+	left: 50%;
 	top: .9rem;
 	margin-left: -2.4rem;
 }
@@ -1672,7 +1687,7 @@ header .logo a {
 
 #resume .timeline-header {
 	float: left;
-	width: 35%;
+	width: 50%;
 	padding-right: 90px;
 	text-align: right;
 }
@@ -1685,7 +1700,7 @@ header .logo a {
 	color: #888888;
 }
 #resume .timeline-content {
-	margin-left: 35%;
+	margin-left: 50%;
 	padding-left: 60px;
 }
 #resume .timeline-content h4 {
