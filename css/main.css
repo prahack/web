@@ -742,6 +742,80 @@ button::-moz-focus-inner, input::-moz-focus-inner {
 	padding: 0;
 }
 
+.button-section.button-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    margin-top: 4rem;
+}
+
+.button-section .col-twelve {
+    text-align: center;
+}
+
+.button.button-primary {
+    display: inline-block;
+    padding: 1.2rem 3rem;
+    font-family: "poppins-medium", sans-serif;
+    font-size: 1.4rem;
+    text-transform: uppercase;
+    letter-spacing: .2rem;
+    color: #ffffff;
+    background: rgba(45, 85, 255, 0.1);
+    border: 1px solid rgba(45, 85, 255, 0.3);
+    border-radius: 3rem;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1;
+}
+
+.button.button-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg, #2d55ff, #ff2d55);
+    border-radius: 3rem;
+    opacity: 0;
+    z-index: -1;
+    transition: opacity 0.3s ease;
+}
+
+.button.button-primary:hover {
+    color: #ffffff;
+    transform: translateY(-2px);
+    border-color: transparent;
+    box-shadow: 0 5px 15px rgba(45, 85, 255, 0.3);
+}
+
+.button.button-primary:hover::after {
+    opacity: 1;
+}
+
+@media only screen and (max-width: 768px) {
+    .button.button-primary {
+        padding: 1rem 2.5rem;
+        font-size: 1.3rem;
+    }
+    
+    .button-section.button-row {
+        gap: 1.5rem;
+        margin-top: 3rem;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    .button.button-primary {
+        padding: 0.9rem 2.2rem;
+        font-size: 1.2rem;
+    }
+    
+    .button-section.button-row {
+        gap: 1.2rem;
+        margin-top: 2.5rem;
+    }
+}
 
 /** 
  * ===================================================================
@@ -1393,8 +1467,8 @@ header .logo a {
 	border: 2px solid #2d55ff;
 	color: #2d55ff;
 	padding: 1.4rem 3.6rem;
-	font-size: 1.6rem;
 	font-family: "poppins-medium", sans-serif;
+	font-size: 1.6rem;
 	border-radius: 50px;
 	transition: all 0.3s ease;
 	position: relative;
@@ -1884,167 +1958,281 @@ document.querySelectorAll('.intro-position span').forEach((span, index) => {
  * ------------------------------------------------------------------- 
  */
 #resume {
-	padding-top: 12rem;
-	padding-bottom: 12rem;
+    background: #0a0b0f;
+    padding: 12rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+#resume::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 90% 10%, rgba(45, 85, 255, 0.1), transparent 40%),
+        radial-gradient(circle at 10% 90%, rgba(255, 45, 85, 0.1), transparent 40%);
+    pointer-events: none;
+}
+
+#resume .section-intro {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+#resume .section-intro h5 {
+    font-family: "poppins-medium", sans-serif;
+    font-size: 1.8rem;
+    color: #2d55ff;
+    text-transform: uppercase;
+    letter-spacing: .25rem;
+    margin-bottom: 1.2rem;
+    animation: fadeInUp 0.5s ease-out;
 }
 
 #resume .resume-header {
-	text-align: center;
+    text-align: center;
+    margin-bottom: 4.8rem;
 }
+
 #resume .resume-header h2 {
-	color: #00d9ff;
+    font-family: "poppins-bold", sans-serif;
+    font-size: 3.6rem;
+    color: #ffffff;
+    margin-bottom: 1.8rem;
+    position: relative;
+    animation: fadeInUp 0.5s ease-out;
 }
 
-#resume .resume-timeline {
-	max-width: 980px;
-}
-#resume .timeline-wrap {
-	position: relative;
-	margin-top: 1.5rem;
-	margin-bottom: 6rem;
-}
-#resume .timeline-wrap::before {
-	content: "";
-	display: block;
-	width: 1px;
-	height: 100%;
-	background: rgba(0, 0, 0, 0.1);
-	position: absolute;
-	left: 50%;
-	top: 0;
-}
-#resume .timeline-block {
-	position: relative;
-	padding-top: 1.5rem;
-}
-#resume .timeline-ico {
-	height: 4.8rem;
-	width: 4.8rem;
-	line-height: 4.8rem;
-	background: #313131;
-	border-radius: 50%;
-	text-align: center;
-	color: #FFFFFF;
-	position: absolute;
-	left: 50%;
-	top: .9rem;
-	margin-left: -2.4rem;
-}
-#resume .timeline-ico i {
-	position: relative;
-	left: .05rem;
-	top: .2rem;
+#resume .resume-header h2::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -1rem;
+    width: 5rem;
+    height: 0.3rem;
+    background: linear-gradient(90deg, #2d55ff, #ff2d55);
+    transform: translateX(-50%);
+    border-radius: 2px;
 }
 
-#resume .timeline-header {
-	float: left;
-	width: 50%;
-	padding-right: 90px;
-	text-align: right;
-}
-#resume .timeline-header h3 {
-	margin-bottom: 0;
-}
-#resume .timeline-header p {
-	font-family: "poppins-regular", sans-serif;
-	font-size: 1.6rem;
-	color: #888888;
-}
-#resume .timeline-content {
-	margin-left: 50%;
-	padding-left: 60px;
-}
-#resume .timeline-content h4 {
-	position: relative;
-	padding-bottom: 1.8rem;
-}
-#resume .timeline-content h4::after {
-	content: "";
-	display: block;
-	height: 3px;
-	width: 50px;
-	background: rgba(0, 0, 0, 0.2);
-	position: absolute;
-	left: 0;
-	bottom: 0;
+.resume-timeline {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
 }
 
-/**
- * responsive:
- * resume
- * ------------------------------------------------------------------- 
- */
-@media only screen and (max-width:1024px) {
-	#resume .timeline-header {
-		padding-right: 50px;
-	}
-	#resume .timeline-header h3 {
-		font-size: 1.8rem;
-	}
-	#resume .timeline-header p {
-		font-size: 1.4rem;
-	}
-	#resume .timeline-content {
-		padding-left: 50px;
-	}
-}
-@media only screen and (max-width:768px) {
-	#resume .timeline-wrap::before {
-		left: 2.4rem;
-	}
-	#resume .timeline-ico {
-		left: 2.4rem;
-	}
-	#resume .timeline-header {
-		float: none;
-		width: auto;
-		padding-right: 15px;
-		text-align: left;
-	}
-	#resume .timeline-header h3 {
-		font-size: 2rem;
-	}
-	#resume .timeline-header p {
-		font-size: 1.5rem;
-		margin-bottom: 1.5rem;
-	}
-	#resume .timeline-content {
-		margin: 0;
-	}
-	#resume .timeline-content h4 {
-		padding-bottom: 0;
-		padding-top: 2.1rem;
-		margin-bottom: .6rem;
-		font-size: 1.7rem;
-	}
-	#resume .timeline-content h4::after {
-		bottom: auto;
-		top: 0;
-	}
-	#resume .timeline-header, #resume .timeline-content {
-		padding-left: 7rem;
-	}
-}
-@media only screen and (max-width:480px) {
-	#resume .resume-header h2 {
-		font-size: 2.2rem;
-	}
-	#resume .timeline-wrap::before {
-		left: 1.8rem;
-	}
-	#resume .timeline-ico {
-		height: 3.6rem;
-		width: 3.6rem;
-		line-height: 3.6rem;
-		left: 1.8rem;
-		margin-left: -1.8rem;
-		font-size: 1.5rem;
-	}
-	#resume .timeline-header, #resume .timeline-content {
-		padding-left: 5.5rem;
-	}
+.timeline-wrap {
+    position: relative;
+    margin-top: 1.5rem;
+    margin-bottom: 6rem;
 }
 
+.timeline-wrap::before {
+    content: "";
+    display: block;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(180deg, 
+        rgba(45, 85, 255, 0.3),
+        rgba(255, 45, 85, 0.3)
+    );
+    position: absolute;
+    left: 50%;
+    top: 0;
+}
+
+.timeline-block {
+    position: relative;
+    padding-top: 1.5rem;
+    clear: both;
+    animation: fadeInUp 0.5s ease-out backwards;
+}
+
+.timeline-block:nth-child(1) { animation-delay: 0.3s; }
+.timeline-block:nth-child(2) { animation-delay: 0.5s; }
+.timeline-block:nth-child(3) { animation-delay: 0.7s; }
+.timeline-block:nth-child(4) { animation-delay: 0.9s; }
+
+.timeline-ico {
+    height: 4.8rem;
+    width: 4.8rem;
+    line-height: 4.8rem;
+    background: rgba(45, 85, 255, 0.1);
+    border-radius: 50%;
+    text-align: center;
+    color: #2d55ff;
+    position: absolute;
+    left: 50%;
+    top: .9rem;
+    margin-left: -2.4rem;
+    backdrop-filter: blur(5px);
+    border: 2px solid rgba(45, 85, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.timeline-ico i {
+    position: relative;
+    left: .05rem;
+    top: .2rem;
+    font-size: 2rem;
+    transition: all 0.3s ease;
+}
+
+.timeline-block:hover .timeline-ico {
+    background: rgba(45, 85, 255, 0.2);
+    border-color: #2d55ff;
+    box-shadow: 0 0 20px rgba(45, 85, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.timeline-header {
+    float: left;
+    width: 35%;
+    padding-right: 90px;
+    text-align: right;
+}
+
+.timeline-content {
+    margin-left: 65%;
+    padding-left: 60px;
+    position: relative;
+}
+
+.timeline-header h3 {
+    font-family: "poppins-semibold", sans-serif;
+    font-size: 2rem;
+    color: #ffffff;
+    margin-bottom: 0;
+}
+
+.timeline-header p {
+    font-family: "poppins-regular", sans-serif;
+    font-size: 1.6rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.timeline-content h4 {
+    font-family: "poppins-medium", sans-serif;
+    font-size: 1.8rem;
+    color: #2d55ff;
+    position: relative;
+    padding-bottom: 1.8rem;
+}
+
+.timeline-content h4::after {
+    content: "";
+    display: block;
+    height: 3px;
+    width: 50px;
+    background: linear-gradient(90deg, #2d55ff, #ff2d55);
+    position: absolute;
+    left: 0;
+    bottom: 0;
+}
+
+.timeline-content p {
+    font-family: "lora-regular", serif;
+    font-size: 1.6rem;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+@media only screen and (max-width: 1024px) {
+    .timeline-header {
+        padding-right: 50px;
+    }
+    
+    .timeline-header h3 {
+        font-size: 1.8rem;
+    }
+    
+    .timeline-header p {
+        font-size: 1.4rem;
+    }
+    
+    .timeline-content {
+        padding-left: 50px;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    .timeline-wrap::before {
+        left: 2.4rem;
+    }
+    
+    .timeline-ico {
+        left: 2.4rem;
+        margin-left: 0;
+    }
+    
+    .timeline-header {
+        float: none;
+        width: auto;
+        padding-right: 15px;
+        text-align: left;
+    }
+    
+    .timeline-header h3 {
+        font-size: 2rem;
+    }
+    
+    .timeline-header p {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .timeline-content {
+        margin: 0;
+    }
+    
+    .timeline-content h4 {
+        padding-bottom: 0;
+        padding-top: 2.1rem;
+        margin-bottom: .6rem;
+        font-size: 1.7rem;
+    }
+    
+    .timeline-content h4::after {
+        bottom: auto;
+        top: 0;
+    }
+    
+    .timeline-header,
+    .timeline-content {
+        padding-left: 7rem;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    #resume {
+        padding: 9rem 0;
+    }
+    
+    #resume .resume-header h2 {
+        font-size: 2.8rem;
+    }
+    
+    .timeline-wrap::before {
+        left: 1.8rem;
+    }
+    
+    .timeline-ico {
+        height: 3.6rem;
+        width: 3.6rem;
+        line-height: 3.6rem;
+        left: 1.8rem;
+        margin-left: 0;
+        font-size: 1.5rem;
+    }
+    
+    .timeline-header,
+    .timeline-content {
+        padding-left: 5.5rem;
+    }
+}
 
 /** 
  * ===================================================================
