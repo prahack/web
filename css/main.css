@@ -2090,15 +2090,20 @@ document.querySelectorAll('.intro-position span').forEach((span, index) => {
 
 .timeline-header {
     float: left;
-    width: 35%;
-    padding-right: 90px;
+    width: 45%;
+    padding-right: 15px;
     text-align: right;
+    position: relative;
+    margin-top: -1rem;
+    margin-bottom: 0;
 }
 
 .timeline-content {
-    margin-left: 65%;
-    padding-left: 60px;
+    margin-left: 55%;
+    padding-left: 15px;
     position: relative;
+    margin-top: -1rem;
+    margin-bottom: 0;
 }
 
 .timeline-header h3 {
@@ -2142,7 +2147,7 @@ document.querySelectorAll('.intro-position span').forEach((span, index) => {
 
 @media only screen and (max-width: 1024px) {
     .timeline-header {
-        padding-right: 50px;
+        padding-right: 10px;
     }
     
     .timeline-header h3 {
@@ -2154,7 +2159,7 @@ document.querySelectorAll('.intro-position span').forEach((span, index) => {
     }
     
     .timeline-content {
-        padding-left: 50px;
+        padding-left: 10px;
     }
 }
 
