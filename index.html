@@ -3,12 +3,13 @@
 
 <head>
 	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 	<title>Prabhanu Gunaweera (prahack) | Associate Technical Lead</title>
 	<meta name="description" content="Associate Technical Lead specializing in Flutter, Full-Stack Development, and Mobile Applications">
 	<meta name="author" content="Prabhanu Gunaweera">
 
-	<link rel="stylesheet" href="css/minimalist.css">
+	<meta name="theme-color" content="#fbfbfd">
+	<link rel="stylesheet" href="css/apple.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	<link rel="icon" type="image/png" href="images/fav.jpg">
 </head>
@@ -21,12 +22,12 @@
 			<div class="logo">
 				<a href="#top">Prabhanu</a>
 			</div>
-			<button class="menu-toggle" id="menuToggle">
+			<button class="menu-toggle" id="menuToggle" aria-label="Menu">
 				<span></span>
 				<span></span>
 				<span></span>
 			</button>
-			<nav>
+			<nav id="navPanel" aria-label="Primary">
 				<ul id="navMenu">
 					<li><a href="#home" class="active">Home</a></li>
 					<li><a href="#about">About</a></li>
@@ -39,11 +40,14 @@
 		</div>
 	</header>
 
+	<div class="nav-scrim" id="navScrim" aria-hidden="true"></div>
+
 	<!-- Hero Section -->
 	<section id="home" class="hero">
 		<div class="hero-content">
 			<h5>Hi, I'm</h5>
 			<h1>Prabhanu Gunaweera</h1>
+			<p class="lede">Associate Technical Lead at FcodeLabs, building Flutter and full-stack products &mdash; and writing about the craft along the way.</p>
 			<div class="roles">
 				<span class="role-tag">Associate Technical Lead</span>
 				<span class="role-tag">Full-Stack Developer</span>
@@ -51,7 +55,7 @@
 				<span class="role-tag">Flutter Consultant</span>
 			</div>
 			<div class="cta-buttons">
-				<a href="#about" class="btn btn-primary">More About Me</a>
+				<a href="#about" class="btn btn-primary">More about me</a>
 				<a href="https://drive.google.com/uc?id=19NsEwKvzUffh3-J_Sd4J1bvbZTD-ujOu&export=download" class="btn btn-outline">Download CV</a>
 			</div>
 			<div class="social-links">
@@ -74,6 +78,9 @@
 					<i class="fab fa-instagram"></i>
 				</a>
 			</div>
+		</div>
+		<div class="scroll-cue" aria-hidden="true">
+			<i class="fas fa-chevron-down"></i> Scroll
 		</div>
 	</section>
 
@@ -110,7 +117,7 @@
 
 			<!-- Work Experience -->
 			<div class="wrapper">
-				<h3 class="mb-2">Work Experience</h3>
+				<h3 class="subhead">Work Experience</h3>
 				<div class="timeline">
 					<div class="timeline-item">
 						<div class="timeline-header">
@@ -171,7 +178,7 @@
 
 			<!-- Education -->
 			<div class="wrapper mt-3">
-				<h3 class="mb-2">Education</h3>
+				<h3 class="subhead">Education</h3>
 				<div class="timeline">
 					<div class="timeline-item">
 						<div class="timeline-header">
@@ -312,9 +319,9 @@
 			</div>
 
 			<!-- View More Projects -->
-			<div style="text-align: center; margin-top: 3rem;">
+			<div class="grid-actions">
 				<button id="toggleProjects" class="btn btn-outline">
-					Show More Projects <i class="fas fa-chevron-down" style="margin-left: 0.5rem;"></i>
+					Show more projects <i class="fas fa-chevron-down" aria-hidden="true"></i>
 				</button>
 			</div>
 		</div>
@@ -392,9 +399,9 @@
 			</div>
 
 			<!-- View More -->
-			<div style="text-align: center; margin-top: 3rem;">
+			<div class="grid-actions">
 				<a href="https://prabhanu.medium.com/" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
-					View All Articles on Medium <i class="fab fa-medium-m" style="margin-left: 0.5rem;"></i>
+					View all articles on Medium <i class="fab fa-medium-m" aria-hidden="true"></i>
 				</a>
 			</div>
 		</div>
@@ -430,7 +437,7 @@
 						<i class="fas fa-phone"></i>
 					</div>
 					<h5>Phone</h5>
-					<p>Mobile: (+94) 71 314 7557<br>WhatsApp: (+94) 71 314 7557</p>
+					<p><a href="tel:+94713147557">(+94) 71 314 7557</a><br>WhatsApp on the same number</p>
 				</div>
 			</div>
 		</div>
@@ -445,7 +452,7 @@
 					<p>Associate Technical Lead & Full Stack Developer</p>
 				</div>
 				<div>
-					<h4 style="margin-bottom: 1rem; color: var(--text-primary);">Connect With Me</h4>
+					<h4 class="mb-1">Connect</h4>
 					<ul class="footer-social">
 						<li>
 							<a href="https://www.linkedin.com/in/prabhanu-gunaweera/" aria-label="LinkedIn">
@@ -483,21 +490,21 @@
 		</div>
 	</footer>
 
-	<!-- Theme Toggle Button -->
-	<button id="themeToggle" class="theme-toggle" aria-label="Toggle Dark Mode">
-		<i class="fas fa-moon moon-icon theme-icon"></i>
-		<i class="fas fa-sun sun-icon theme-icon"></i>
-	</button>
-
-	<!-- Back to Top Button -->
-	<div id="go-top">
-		<a href="#top" aria-label="Back to Top">
-			<i class="fas fa-chevron-up"></i>
-		</a>
+	<!-- Floating controls -->
+	<div class="floating-controls">
+		<div id="go-top">
+			<a href="#top" aria-label="Back to top">
+				<i class="fas fa-chevron-up" aria-hidden="true"></i>
+			</a>
+		</div>
+		<button id="themeToggle" class="theme-toggle" aria-label="Switch appearance">
+			<i class="fas fa-moon moon-icon theme-icon" aria-hidden="true"></i>
+			<i class="fas fa-sun sun-icon theme-icon" aria-hidden="true"></i>
+		</button>
 	</div>
 
 	<!-- JavaScript -->
-	<script src="js/minimalist.js"></script>
+	<script src="js/apple.js" defer></script>
 
 </body>
 

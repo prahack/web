@@ -1,0 +1,1261 @@
+/* ===================================================================
+   Apple-inspired design system
+   Built against .claude/skills/apple-design/SKILL.md
+
+   Principles applied here:
+   - §12 Materials & depth: translucent chrome, scroll edge effects
+   - §14 Reduced motion / transparency / contrast
+   - §15 Typography: size-specific tracking, leading that tracks size
+   - §1  Response: press feedback is instant, on pointer-down
+   Motion that a gesture can touch lives in js/apple.js (springs).
+   =================================================================== */
+
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* -------------------------------------------------------------------
+   Tokens — light is the base, dark redefines only what changes
+   ------------------------------------------------------------------- */
+
+:root {
+    /* Surfaces: base sits behind, elevated is the card/sheet layer */
+    --bg-base: #fbfbfd;
+    --bg-alt: #f5f5f7;
+    --bg-elevated: #ffffff;
+    --bg-sunken: #f0f0f3;
+
+    /* Text — a three-step ramp, never more */
+    --text-primary: #1d1d1f;
+    --text-secondary: #515154;
+    --text-tertiary: #86868b;
+
+    --accent: #0071e3;
+    --accent-pressed: #0060c0;
+    --accent-tint: rgba(0, 113, 227, 0.1);
+    --on-accent: #ffffff;
+
+    --separator: rgba(0, 0, 0, 0.09);
+    --separator-strong: rgba(0, 0, 0, 0.16);
+
+    /* Materials — §12. Weight encodes hierarchy. */
+    --material-chrome: rgba(251, 251, 253, 0.72);
+    --material-chrome-dense: rgba(251, 251, 253, 0.86);
+    --material-sheet: rgba(255, 255, 255, 0.78);
+    --material-edge: rgba(255, 255, 255, 0.7);
+    --material-blur: 20px;
+    --material-saturate: 180%;
+
+    /* Bigger surfaces read as thicker: deeper blur, deeper shadow */
+    --shadow-chip: 0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
+    --shadow-lifted: 0 2px 6px rgba(0, 0, 0, 0.06), 0 18px 48px rgba(0, 0, 0, 0.12);
+    --shadow-sheet: 0 4px 12px rgba(0, 0, 0, 0.08), 0 32px 64px rgba(0, 0, 0, 0.18);
+
+    --radius-sm: 10px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+    --radius-pill: 980px;
+
+    /* The two easings used for non-gesture transitions.
+       They are inverses of each other so reversible paths mirror (§7). */
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-in: cubic-bezier(0.64, 0, 0.78, 0);
+    --press: 90ms ease-out;      /* §1 — press feedback must feel immediate */
+    --release: 320ms var(--ease-out);
+
+    --measure: 68ch;
+    --gutter: clamp(1.25rem, 4vw, 2.5rem);
+}
+
+[data-theme="dark"] {
+    --bg-base: #000000;
+    --bg-alt: #0a0a0c;
+    --bg-elevated: #161618;
+    --bg-sunken: #1c1c1f;
+
+    --text-primary: #f5f5f7;
+    --text-secondary: #b0b0b6;
+    --text-tertiary: #86868b;
+
+    --accent: #0a84ff;
+    --accent-pressed: #409cff;
+    --accent-tint: rgba(10, 132, 255, 0.16);
+    --on-accent: #ffffff;
+
+    --separator: rgba(255, 255, 255, 0.11);
+    --separator-strong: rgba(255, 255, 255, 0.2);
+
+    --material-chrome: rgba(22, 22, 24, 0.68);
+    --material-chrome-dense: rgba(12, 12, 14, 0.85);
+    --material-sheet: rgba(28, 28, 31, 0.8);
+    --material-edge: rgba(255, 255, 255, 0.12);
+
+    --shadow-chip: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.45);
+    --shadow-lifted: 0 2px 6px rgba(0, 0, 0, 0.55), 0 18px 48px rgba(0, 0, 0, 0.6);
+    --shadow-sheet: 0 4px 12px rgba(0, 0, 0, 0.6), 0 32px 64px rgba(0, 0, 0, 0.7);
+}
+
+/* No-JS / first-paint dark, before the theme attribute is written */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        color-scheme: dark;
+    }
+}
+
+/* -------------------------------------------------------------------
+   Base
+   ------------------------------------------------------------------- */
+
+html {
+    font-size: 100%;
+    /* Scrolling is spring-driven in JS so it stays interruptible (§3) */
+    scroll-behavior: auto;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    /* §15 — the system font already ships optical sizing and tracking tables */
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter",
+        "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    letter-spacing: -0.003em;
+    color: var(--text-primary);
+    background-color: var(--bg-base);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+    /* Ease the dark↔light change — §14 warns against abrupt brightness jumps */
+    transition: background-color 420ms var(--ease-out), color 420ms var(--ease-out);
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: none;
+    cursor: pointer;
+    /* §1 — no 300ms tap delay on the input path */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+::selection {
+    background: var(--accent-tint);
+    color: var(--text-primary);
+}
+
+/* -------------------------------------------------------------------
+   Type scale — §15
+   Tracking is size-specific: large text tightens, small text opens up.
+   Leading tracks size inversely: tight on display, loose on body.
+   ------------------------------------------------------------------- */
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
+    font-weight: 600;
+    text-wrap: balance;
+}
+
+h1 {
+    font-size: clamp(2.5rem, 7vw, 4.5rem);
+    line-height: 1.04;
+    letter-spacing: -0.028em;
+    font-weight: 700;
+}
+
+h2 {
+    font-size: clamp(1.875rem, 4.2vw, 3rem);
+    line-height: 1.08;
+    letter-spacing: -0.022em;
+    font-weight: 650;
+}
+
+h3 {
+    font-size: clamp(1.25rem, 2.2vw, 1.5rem);
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+}
+
+h4 {
+    font-size: 1.1875rem;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+}
+
+/* Eyebrow label — small text wants *positive* tracking */
+h5, .eyebrow {
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    letter-spacing: 0.055em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--text-tertiary);
+}
+
+h6 {
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    letter-spacing: 0.012em;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    text-transform: none;
+}
+
+p {
+    color: var(--text-secondary);
+    line-height: 1.65;
+    max-width: var(--measure);
+}
+
+p + p {
+    margin-top: 1rem;
+}
+
+/* -------------------------------------------------------------------
+   Layout
+   All spacing in rem so it scales with the user's text size (§15)
+   ------------------------------------------------------------------- */
+
+.container {
+    width: 100%;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+}
+
+.wrapper {
+    max-width: 820px;
+    margin: 0 auto;
+}
+
+.section {
+    padding: clamp(4rem, 10vw, 7.5rem) 0;
+    position: relative;
+}
+
+/* A quiet tint band, not a hard divider */
+section.section:nth-of-type(even) {
+    background-color: var(--bg-alt);
+}
+
+.section-intro {
+    margin-bottom: clamp(2.5rem, 6vw, 4rem);
+    max-width: 40ch;
+}
+
+.section-intro h5 {
+    margin-bottom: 0.75rem;
+}
+
+.section-intro h2 {
+    margin-bottom: 0.75rem;
+}
+
+.section-intro p {
+    color: var(--text-tertiary);
+    font-size: 1rem;
+}
+
+/* -------------------------------------------------------------------
+   Header — a translucent floating layer, content scrolls under (§12)
+   ------------------------------------------------------------------- */
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 900;
+    background: var(--material-chrome);
+    -webkit-backdrop-filter: blur(var(--material-blur)) saturate(var(--material-saturate));
+    backdrop-filter: blur(var(--material-blur)) saturate(var(--material-saturate));
+    transition: background-color 320ms var(--ease-out);
+}
+
+/* Scroll edge effect instead of a 1px rule — §12.
+   It only appears where floating chrome actually overlaps content. */
+header::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 14px;
+    pointer-events: none;
+    background: linear-gradient(to bottom, var(--separator), transparent 65%);
+    opacity: 0;
+    transition: opacity 260ms var(--ease-out);
+}
+
+header.at-edge::after {
+    opacity: 1;
+}
+
+header.at-edge {
+    background: var(--material-chrome-dense);
+}
+
+.nav-container {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0.85rem var(--gutter);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    position: relative;
+}
+
+.logo {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+}
+
+.logo a {
+    color: var(--text-primary);
+    display: inline-block;
+    /* §1 — feedback on the press itself */
+    transition: transform var(--release), opacity var(--release);
+}
+
+.logo a:active {
+    transform: scale(0.96);
+    opacity: 0.6;
+    transition: transform var(--press), opacity var(--press);
+}
+
+nav {
+    position: relative;
+}
+
+nav ul {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    list-style: none;
+}
+
+nav a {
+    display: inline-block;
+    position: relative;
+    padding: 0.4rem 0.85rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.875rem;
+    font-weight: 500;
+    /* Vibrancy: text over a translucent surface needs contrast + a touch
+       more weight and tracking than flat gray would give (§12) */
+    letter-spacing: 0.004em;
+    color: var(--text-secondary);
+    transition: color 220ms var(--ease-out), transform var(--release);
+    z-index: 1;
+}
+
+nav a:hover {
+    color: var(--text-primary);
+}
+
+nav a:active {
+    transform: scale(0.94);
+    transition: transform var(--press);
+}
+
+nav a.active {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* The selection pill is one shared element that springs between items,
+   so the indicator moves continuously instead of cross-fading (§7). */
+.nav-indicator {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 0;
+    width: 0;
+    border-radius: var(--radius-pill);
+    background: var(--bg-sunken);
+    box-shadow: var(--shadow-chip);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 0;
+    will-change: transform, width, height;
+}
+
+[data-theme="dark"] .nav-indicator {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: none;
+}
+
+/* -------------------------------------------------------------------
+   Menu toggle + mobile sheet
+   ------------------------------------------------------------------- */
+
+.menu-toggle {
+    display: none;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-pill);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 5px;
+    background: var(--bg-sunken);
+    transition: transform var(--release), background-color 220ms var(--ease-out);
+}
+
+.menu-toggle:active {
+    transform: scale(0.9);
+    transition: transform var(--press);
+}
+
+.menu-toggle span {
+    display: block;
+    width: 17px;
+    height: 1.5px;
+    border-radius: 2px;
+    background: var(--text-primary);
+    transition: transform 340ms var(--ease-out), opacity 200ms var(--ease-out);
+}
+
+.menu-toggle.active span:nth-child(1) {
+    transform: translateY(6.5px) rotate(45deg);
+}
+
+.menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0.4);
+}
+
+.menu-toggle.active span:nth-child(3) {
+    transform: translateY(-6.5px) rotate(-45deg);
+}
+
+/* A parallel, non-blocking panel: translucency + offset, a light scrim
+   only (§12 — dim to focus, separate to keep flow). */
+.nav-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 890;
+    background: rgba(0, 0, 0, 0.28);
+    opacity: 0;
+    pointer-events: none;
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+}
+
+.nav-scrim.engaged {
+    pointer-events: auto;
+}
+
+/* -------------------------------------------------------------------
+   Buttons — §1, response lives on the press
+   ------------------------------------------------------------------- */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.9375rem;
+    font-weight: 550;
+    letter-spacing: 0.002em;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: transform var(--release), background-color 220ms var(--ease-out),
+        border-color 220ms var(--ease-out), color 220ms var(--ease-out);
+}
+
+.btn:active {
+    /* Instant, on pointer-down — waiting for the release feels dead */
+    transform: scale(0.96);
+    transition: transform var(--press);
+}
+
+.btn-primary {
+    background: var(--accent);
+    color: var(--on-accent);
+}
+
+.btn-primary:hover {
+    background: var(--accent-pressed);
+    color: var(--on-accent);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--accent);
+    box-shadow: inset 0 0 0 1px currentColor;
+}
+
+.btn-outline:hover {
+    background: var(--accent-tint);
+}
+
+.cta-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+/* -------------------------------------------------------------------
+   Hero
+   ------------------------------------------------------------------- */
+
+.hero {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 8rem var(--gutter) 5rem;
+    max-width: 1120px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.hero-content {
+    max-width: 46rem;
+}
+
+.hero h5 {
+    margin-bottom: 1rem;
+}
+
+.hero h1 {
+    margin-bottom: 1.5rem;
+    font-optical-sizing: auto;
+}
+
+.hero .lede {
+    font-size: clamp(1.0625rem, 2vw, 1.3125rem);
+    line-height: 1.5;
+    letter-spacing: -0.008em;
+    color: var(--text-secondary);
+    max-width: 34ch;
+    margin-bottom: 2rem;
+}
+
+.roles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2.25rem;
+}
+
+.role-tag {
+    padding: 0.4rem 0.9rem;
+    border-radius: var(--radius-pill);
+    background: var(--bg-sunken);
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    box-shadow: var(--shadow-chip);
+    transition: transform var(--release), color 220ms var(--ease-out);
+}
+
+.role-tag:hover {
+    color: var(--text-primary);
+}
+
+.social-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 2.5rem;
+}
+
+.social-links a,
+.footer-social a {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-pill);
+    background: var(--bg-sunken);
+    color: var(--text-secondary);
+    font-size: 1rem;
+    transition: transform var(--release), color 220ms var(--ease-out),
+        background-color 220ms var(--ease-out);
+}
+
+.social-links a:hover,
+.footer-social a:hover {
+    color: var(--text-primary);
+    background: var(--separator);
+}
+
+.social-links a:active,
+.footer-social a:active,
+.role-tag:active {
+    transform: scale(0.9);
+    transition: transform var(--press);
+}
+
+/* Scroll cue — a slow, small hint, kept under the 0.2Hz oscillation
+   warning in §14 by being a single subtle travel, not a loop of jumps */
+.scroll-cue {
+    position: absolute;
+    left: var(--gutter);
+    bottom: 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+}
+
+.scroll-cue i {
+    font-size: 0.7rem;
+}
+
+/* -------------------------------------------------------------------
+   About
+   ------------------------------------------------------------------- */
+
+.about-content {
+    display: grid;
+    grid-template-columns: minmax(0, 240px) minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+}
+
+.profile-image {
+    width: 100%;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+}
+
+.about-text p {
+    font-size: 1.0625rem;
+}
+
+.about-text .cta-buttons {
+    margin-top: 2rem;
+}
+
+/* -------------------------------------------------------------------
+   Timeline — grouping by proximity, dates mapped beside their entry
+   ------------------------------------------------------------------- */
+
+.timeline {
+    position: relative;
+    padding-left: 1.75rem;
+}
+
+.timeline::before {
+    content: "";
+    position: absolute;
+    left: 3px;
+    top: 6px;
+    bottom: 6px;
+    width: 1px;
+    background: var(--separator-strong);
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 2.25rem;
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-item::before {
+    content: "";
+    position: absolute;
+    left: -1.75rem;
+    top: 7px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--text-tertiary);
+}
+
+.timeline-item:first-child::before {
+    background: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-tint);
+}
+
+.timeline-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+    margin-bottom: 0.35rem;
+}
+
+.timeline-header h3 {
+    font-size: 1.125rem;
+    letter-spacing: -0.012em;
+}
+
+.timeline-header .date {
+    font-size: 0.8125rem;
+    letter-spacing: 0.012em;
+    color: var(--text-tertiary);
+    font-variant-numeric: tabular-nums;
+}
+
+.timeline-content h4 {
+    font-size: 0.9375rem;
+    font-weight: 550;
+    color: var(--text-secondary);
+    margin-bottom: 0.35rem;
+}
+
+.timeline-content p {
+    font-size: 0.9375rem;
+    color: var(--text-tertiary);
+}
+
+.subhead {
+    font-size: 1.125rem;
+    letter-spacing: -0.012em;
+    margin-bottom: 1.75rem;
+    color: var(--text-primary);
+}
+
+/* -------------------------------------------------------------------
+   Cards — projects, blog, contact
+   ------------------------------------------------------------------- */
+
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 1.25rem;
+}
+
+.project-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 1.75rem;
+    border-radius: var(--radius-lg);
+    background: var(--bg-elevated);
+    box-shadow: var(--shadow-card);
+    /* Transform is spring-driven from JS on hover/press; the transition
+       here only covers the non-gesture properties. */
+    transition: box-shadow 320ms var(--ease-out), background-color 320ms var(--ease-out);
+    will-change: transform;
+}
+
+[data-theme="dark"] .project-card {
+    box-shadow: inset 0 0 0 1px var(--separator);
+}
+
+.project-card:hover {
+    box-shadow: var(--shadow-lifted);
+}
+
+[data-theme="dark"] .project-card:hover {
+    box-shadow: inset 0 0 0 1px var(--separator-strong), var(--shadow-lifted);
+}
+
+.project-card h4 {
+    margin-bottom: 0.4rem;
+}
+
+/* A card title reads as a title whether or not it links out; the link
+   affordance shows up on hover instead of splitting the grid into two
+   visually different kinds of card (§16, familiarity/consistency). */
+.project-card h4 a,
+.project-card a h4 {
+    color: var(--text-primary);
+    transition: color 220ms var(--ease-out);
+}
+
+.project-card a:hover h4,
+.project-card h4 a:hover {
+    color: var(--accent);
+}
+
+.project-card h6 {
+    margin-bottom: 0.9rem;
+}
+
+.project-card p {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.25rem;
+}
+
+.project-card .project-link {
+    margin-top: auto;
+    font-size: 0.8125rem;
+    letter-spacing: 0.012em;
+    color: var(--text-tertiary);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.project-card a.project-link {
+    color: var(--accent);
+    font-weight: 500;
+}
+
+.project-card a.project-link i {
+    font-size: 0.7rem;
+    transition: transform 280ms var(--ease-out);
+}
+
+.project-card a.project-link:hover i {
+    transform: translate(2px, -2px);
+}
+
+/* Collapsed projects: hidden from layout *and* the a11y tree until shown */
+.hidden-project {
+    display: none;
+}
+
+.hidden-project.show {
+    display: flex;
+}
+
+.grid-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 2.5rem;
+}
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+}
+
+.contact-card {
+    padding: 1.75rem;
+    border-radius: var(--radius-lg);
+    background: var(--bg-elevated);
+    box-shadow: var(--shadow-card);
+    will-change: transform;
+}
+
+[data-theme="dark"] .contact-card {
+    box-shadow: inset 0 0 0 1px var(--separator);
+}
+
+.contact-card .icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    background: var(--accent-tint);
+    color: var(--accent);
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.contact-card h5 {
+    margin-bottom: 0.4rem;
+}
+
+.contact-card p {
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+}
+
+.contact-card a {
+    color: var(--text-primary);
+}
+
+.contact-card a:hover {
+    color: var(--accent);
+}
+
+/* -------------------------------------------------------------------
+   Footer
+   ------------------------------------------------------------------- */
+
+footer {
+    padding: 3rem 0 3.5rem;
+    background: var(--bg-base);
+    border-top: 1px solid var(--separator);
+}
+
+.footer-content {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+}
+
+.copyright p {
+    font-size: 0.8125rem;
+    letter-spacing: 0.008em;
+    color: var(--text-tertiary);
+    margin: 0;
+}
+
+.footer-social {
+    display: flex;
+    gap: 0.5rem;
+    list-style: none;
+}
+
+/* -------------------------------------------------------------------
+   Floating controls — small chips, so a lighter material than the header
+   ------------------------------------------------------------------- */
+
+.floating-controls {
+    position: fixed;
+    right: clamp(1rem, 3vw, 2rem);
+    bottom: clamp(1rem, 3vw, 2rem);
+    z-index: 880;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}
+
+.theme-toggle,
+#go-top a {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-pill);
+    background: var(--material-sheet);
+    -webkit-backdrop-filter: blur(16px) saturate(var(--material-saturate));
+    backdrop-filter: blur(16px) saturate(var(--material-saturate));
+    box-shadow: var(--shadow-card), inset 0 0 0 1px var(--material-edge);
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    transition: transform var(--release), background-color 220ms var(--ease-out);
+}
+
+.theme-toggle:active,
+#go-top a:active {
+    transform: scale(0.9);
+    transition: transform var(--press);
+}
+
+/* The icon crossfades in place; the button itself never spins */
+.theme-icon {
+    position: absolute;
+    transition: opacity 260ms var(--ease-out), transform 380ms var(--ease-out);
+}
+
+.theme-toggle {
+    position: relative;
+}
+
+.theme-toggle .sun-icon {
+    opacity: 0;
+    transform: scale(0.6) rotate(-40deg);
+}
+
+.theme-toggle .moon-icon {
+    opacity: 1;
+    transform: none;
+}
+
+[data-theme="dark"] .theme-toggle .sun-icon {
+    opacity: 1;
+    transform: none;
+}
+
+[data-theme="dark"] .theme-toggle .moon-icon {
+    opacity: 0;
+    transform: scale(0.6) rotate(40deg);
+}
+
+#go-top {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.8);
+    transition: opacity 260ms var(--ease-out), transform 320ms var(--ease-out),
+        visibility 0s linear 260ms;
+}
+
+#go-top.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: opacity 260ms var(--ease-out), transform 320ms var(--ease-out),
+        visibility 0s;
+}
+
+/* -------------------------------------------------------------------
+   Reveal on scroll
+   JS springs these in; the class is only added when JS is running, so
+   without JS every element renders in its final state.
+   ------------------------------------------------------------------- */
+
+.js-reveal [data-reveal] {
+    opacity: 0;
+    will-change: transform, opacity;
+}
+
+/* -------------------------------------------------------------------
+   Utilities kept from the previous stylesheet
+   ------------------------------------------------------------------- */
+
+.text-center { text-align: center; }
+.mb-1 { margin-bottom: 1rem; }
+.mb-2 { margin-bottom: 2rem; }
+.mb-3 { margin-bottom: 3rem; }
+.mt-1 { margin-top: 1rem; }
+.mt-2 { margin-top: 2rem; }
+.mt-3 { margin-top: 3rem; }
+
+/* -------------------------------------------------------------------
+   Compact layout — the nav becomes a sheet anchored to its trigger
+   ------------------------------------------------------------------- */
+
+@media (max-width: 860px) {
+    .menu-toggle {
+        display: flex;
+    }
+
+    nav {
+        position: fixed;
+        top: calc(env(safe-area-inset-top, 0px) + 4.25rem);
+        left: 0.75rem;
+        right: 0.75rem;
+        z-index: 895;
+        visibility: hidden;
+    }
+
+    nav.open,
+    nav.animating {
+        visibility: visible;
+    }
+
+    nav ul {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.125rem;
+        padding: 0.5rem;
+        border-radius: var(--radius-xl);
+        background: var(--material-sheet);
+        -webkit-backdrop-filter: blur(30px) saturate(var(--material-saturate));
+        backdrop-filter: blur(30px) saturate(var(--material-saturate));
+        box-shadow: var(--shadow-sheet), inset 0 0 0 1px var(--material-edge);
+        /* §7 — the sheet originates from the button that opened it */
+        transform-origin: top right;
+        will-change: transform, opacity;
+    }
+
+    nav a {
+        display: block;
+        padding: 0.8rem 1rem;
+        border-radius: var(--radius-md);
+        font-size: 1rem;
+        font-weight: 500;
+        letter-spacing: -0.005em;
+    }
+
+    nav a.active {
+        background: var(--accent-tint);
+        color: var(--accent);
+    }
+
+    /* Grab affordance: the sheet dismisses back up the way it came in.
+       A pseudo-element, so the desktop nav row stays a clean list. */
+    nav ul::before {
+        content: "";
+        display: block;
+        width: 36px;
+        height: 4px;
+        border-radius: 2px;
+        background: var(--separator-strong);
+        margin: 0.5rem auto 0.25rem;
+    }
+
+    .nav-indicator {
+        display: none;
+    }
+
+    .hero {
+        padding-top: 7rem;
+        min-height: auto;
+    }
+
+    .scroll-cue {
+        display: none;
+    }
+
+    .about-content {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-image {
+        max-width: 200px;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .cta-buttons .btn {
+        flex: 1 1 auto;
+    }
+
+    .timeline-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* Touch devices: hover lift is meaningless, and a sticky :hover state
+   left behind after a tap reads as a bug */
+@media (hover: none) {
+    .project-card:hover {
+        box-shadow: var(--shadow-card);
+    }
+}
+
+/* -------------------------------------------------------------------
+   §14 — Accessibility preferences
+   Reduced motion is not "no feedback"; it is gentler, non-vestibular
+   feedback. Opacity and color changes stay, travel and overshoot go.
+   ------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 180ms !important;
+    }
+
+    .js-reveal [data-reveal] {
+        opacity: 1;
+        transform: none !important;
+    }
+
+    .btn:active,
+    nav a:active,
+    .menu-toggle:active,
+    .theme-toggle:active,
+    .social-links a:active,
+    .footer-social a:active,
+    .role-tag:active,
+    #go-top a:active {
+        /* Keep a press signal, drop the movement */
+        transform: none;
+        opacity: 0.6;
+    }
+}
+
+/* Frostier, not clearer: raise opacity and drop the blur */
+@media (prefers-reduced-transparency: reduce) {
+    header,
+    header.at-edge {
+        background: var(--bg-base);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        border-bottom: 1px solid var(--separator);
+    }
+
+    nav ul,
+    .theme-toggle,
+    #go-top a {
+        background: var(--bg-elevated);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+
+    .nav-scrim {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+}
+
+/* Near-solid backgrounds with a defined, contrasting border */
+@media (prefers-contrast: more) {
+    :root {
+        --text-secondary: #33333a;
+        --text-tertiary: #4a4a52;
+        --separator: rgba(0, 0, 0, 0.3);
+        --separator-strong: rgba(0, 0, 0, 0.45);
+    }
+
+    [data-theme="dark"] {
+        --text-secondary: #e4e4e8;
+        --text-tertiary: #c9c9cf;
+        --separator: rgba(255, 255, 255, 0.35);
+        --separator-strong: rgba(255, 255, 255, 0.5);
+    }
+
+    .project-card,
+    .contact-card,
+    nav ul,
+    .theme-toggle,
+    #go-top a {
+        box-shadow: inset 0 0 0 1px var(--separator-strong);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        background: var(--bg-elevated);
+    }
+
+    header,
+    header.at-edge {
+        background: var(--bg-base);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        border-bottom: 1px solid var(--separator-strong);
+    }
+}
+
+@media print {
+    header,
+    .floating-controls,
+    .scroll-cue,
+    .grid-actions {
+        display: none;
+    }
+
+    .js-reveal [data-reveal] {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
